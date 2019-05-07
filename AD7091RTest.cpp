@@ -4,11 +4,14 @@
 
 int main(void) {
 
-  AD7091R rtd(21, 22, 23, 24); //CONVST, CS, CLK, DATA
+  AD7091R rtd(5, 6, 13, 19); //CONVST, CS, CLK, DATA
   rtd.begin();
   rtd.reset();
   sleep(1);
-  rtd.data();
+  while(1) {
+    printf("RTD Data: %d\n", rtd.data());
+    
+  }
 
 
   return 0;
