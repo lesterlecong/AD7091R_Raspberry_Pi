@@ -1,7 +1,7 @@
 #include "AD7091R.h"
 
 #include <stdint.h>
-#include <wiringPi.h>
+#include <bcm2835.h>
 
 
 AD7091R::AD7091R(): 
@@ -62,16 +62,19 @@ bool AD7091R::begin() {
        return false;
   }
 
-  wiringPiSetup();
+  if(!bcm2835_init()) {
+    return false;
+  }
 
-  pinMode(m_convstPin, OUTPUT);
-  pinMode(m_csPin, OUTPUT);
-  pinMode(m_clkPin, OUTPUT);
-  pinMode(m_dataPin, INPUT);
-	
-  digitalWrite(m_csPin, HIGH);
-  digitalWrite(m_clkPin, LOW);
-  digitalWrite(m_convstPin, HIGH);
+  bcm2835_gpio_fsel(m_convstPin, BCM2835_GPIO_FSEL_OUTP);
+  bcm2835_gpio_fsel(m_csPin, BCM2835_GPIO_FSEL_OUTP);
+  bcm2835_gpio_fsel(m_clkPin, BCM2835_GPIO_FSEL_OUTP);
+  bcm2835_gpio_fsel(m_dataPin, BCM2835_GPIO_FSEL_INPT);
+
+ 
+  bcm2835_gpio_write(m_csPin, HIGH);
+  bcm2835_gpio_write(m_clkPin, LOW);
+  bcm2835_gpio_write(m_convstPin, HIGH);
 
   return true;
 }
@@ -80,33 +83,33 @@ void AD7091R::reset() {
   
   //Start a conversion
   delayMicroseconds(1);
-  digitalWrite(m_convstPin, LOW); //Set CONVST Pin to LOW
+  bcm2835_gpio_write(m_convstPin, LOW); //Set CONVST Pin to LOW
   delayMicroseconds(1);
-  digitalWrite(m_convstPin, HIGH);  //Set CONVST Pin to HIGH
+  bcm2835_gpio_write(m_convstPin, HIGH);  //Set CONVST Pin to HIGH
 
-  digitalWrite(m_csPin, LOW);        //Set CS Pin to LOW
+  bcm2835_gpio_write(m_csPin, LOW);        //Set CS Pin to LOW
   delayMicroseconds(1);
 
   uint8_t clock_cycle = 0;
 
   for(clock_cycle = 0; clock_cycle < 4; clock_cycle++) { //4 cycles only to short the cycle; you can choose between 2 to 8
-    digitalWrite(m_clkPin, HIGH); //Set CLK Pin to HIGH
+    bcm2835_gpio_write(m_clkPin, HIGH); //Set CLK Pin to HIGH
     delayMicroseconds(1);
-    digitalWrite(m_clkPin, LOW); //Set CLK Pin to LOW
+    bcm2835_gpio_write(m_clkPin, LOW); //Set CLK Pin to LOW
     delayMicroseconds(1);
   }
 
-  digitalWrite(m_csPin, HIGH);
+  bcm2835_gpio_write(m_csPin, HIGH);
 
   //Perform Another conversion
-  digitalWrite(m_convstPin, LOW); //Set CONVST Pin to LOW
+  bcm2835_gpio_write(m_convstPin, LOW); //Set CONVST Pin to LOW
   delayMicroseconds(1);
-  digitalWrite(m_convstPin, HIGH);  //Set CONVST Pin to HIGH
+  bcm2835_gpio_write(m_convstPin, HIGH);  //Set CONVST Pin to HIGH
 
   for(clock_cycle = 0; clock_cycle < 12; clock_cycle++) { 
-    digitalWrite(m_clkPin, HIGH); //Set CLK Pin to HIGH
+    bcm2835_gpio_write(m_clkPin, HIGH); //Set CLK Pin to HIGH
     delayMicroseconds(1);
-    digitalWrite(m_clkPin, LOW); //Set CLK Pin to LOW
+    bcm2835_gpio_write(m_clkPin, LOW); //Set CLK Pin to LOW
     delayMicroseconds(1);
   }
 }
@@ -115,24 +118,23 @@ uint16_t AD7091R::data() {
   uint16_t result = 0;
   
   //Start a conversion
-  digitalWrite(m_convstPin, LOW); //Set CONVST Pin to LOW
+  bcm2835_gpio_write(m_convstPin, LOW); //Set CONVST Pin to LOW
   delayMicroseconds(1);
-  digitalWrite(m_convstPin, HIGH);  //Set CONVST Pin to HIGH
+  bcm2835_gpio_write(m_convstPin, HIGH);  //Set CONVST Pin to HIGH
   
-  digitalWrite(m_csPin, LOW);        //Set CS Pin to LOW
+  bcm2835_gpio_write(m_csPin, LOW);        //Set CS Pin to LOW
   
   uint8_t clock_cycle = 0;
   for(clock_cycle = 0; clock_cycle < 12; clock_cycle++) { 
-    digitalWrite(m_clkPin, HIGH); //Set CLK Pin to HIGH
+    bcm2835_gpio_write(m_clkPin, HIGH); //Set CLK Pin to HIGH
     delayMicroseconds(1);
-    digitalWrite(m_clkPin, LOW); //Set CLK Pin to LOW
-    //result = (result << 1) | (digitalRead(m_dataPin) & 0x01);
-    digitalRead(m_dataPin);
+    bcm2835_gpio_write(m_clkPin, LOW); //Set CLK Pin to LOW
+    result = (result << 1) | (bcm2835_gpio_lev(m_dataPin) & 0x01);
     delayMicroseconds(1);
   }
   
   delayMicroseconds(1);
-  digitalWrite(m_csPin, HIGH);
+  bcm2835_gpio_write(m_csPin, HIGH);
 
   return result;
 }
