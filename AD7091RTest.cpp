@@ -5,12 +5,18 @@
 int main(void) {
 
   AD7091R rtd(5, 6, 13, 19); //CONVST, CS, CLK, DATA
+  AD7091R adc(5, 20, 13, 21);
+
   rtd.begin();
   rtd.reset();
+
+  adc.begin();
+  adc.reset();
+
   sleep(1);
   while(1) {
-    printf("RTD Data: %d\n", rtd.data());
-    
+    printf("ADC Data: %d\n", adc.data());
+    usleep(500);
   }
 
 
