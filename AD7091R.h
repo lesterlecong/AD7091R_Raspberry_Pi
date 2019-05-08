@@ -5,32 +5,32 @@
 
 #define OUT_OF_RANGE_PIN_NUMBER 99
 
+typedef struct AD7091R_t {
+  uint8_t convst_pin;
+  uint8_t cs_pin;
+  uint8_t clk_pin;
+  uint8_t data_pin;
+} AD7091R;
 
-class AD7091R {
-    public:
-        AD7091R();
-        AD7091R(uint8_t convstPin, uint8_t csPin, uint8_t clkPin, uint8_t dataPin);
-        ~AD7091R();
+int alloc_AD7091R(AD7091R **pp_instance);
+int set_pins(AD7091R *p_instance, 
+	     uint8_t n_convst_pin,
+             uint8_t n_cs_pin,
+             uint8_t n_clk_pin,
+             uint8_t n_data_pin);
 
-        void convstPin(uint8_t pin);
-        void csPin(uint8_t pin);
-        void clkPin(uint8_t pin);
-        void dataPin(uint8_t pin);
+int set_convst(AD7091R *p_instance,
+	       uint8_t n_convst_pin);
+int set_cs(AD7091R *p_instance,
+	   uint8_t n_cs_pin);
+int set_clk(AD7091R *p_instance,
+            uint8_t n_clk_pin);
+int set_data(AD7091R *p_instance,
+             uint8_t n_data_pin);
 
-        uint8_t convstPin();
-        uint8_t csPin();
-        uint8_t clkPin();
-        uint8_t dataPin();
+int begin(AD7091R *p_instance);
+void reset(AD7091R *p_instance);
+uint16_t data(AD7091R *p_instance);
 
-        bool begin();
 
-        void reset();
-        uint16_t data();
-
-    private:
-        uint8_t m_convstPin;
-        uint8_t m_csPin;
-        uint8_t m_clkPin;
-        uint8_t m_dataPin;
-};
 #endif
