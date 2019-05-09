@@ -1,5 +1,6 @@
 #include "AD7091R.h"
 #include <stdint.h>
+#include <stdlib.h>
 #include <bcm2835.h>
 
 int AD7091R_alloc(AD7091R **pp_instance) {
@@ -23,7 +24,7 @@ int AD7091R_alloc(AD7091R **pp_instance) {
 int AD7091R_dealloc(AD7091R *p_instance) {
 
   if(p_instance != 0) {
-    free(p_intance);
+    free(p_instance);
 
     return TRUE;
   }
@@ -51,7 +52,7 @@ int AD7091R_pins(AD7091R *p_instance,
   }
 }
 
-int AD7091R_convst(AD7091R *p_instance,
+int AD7091R_convst_pin(AD7091R *p_instance,
 	           uint8_t n_convst_pin) {
 
   if(p_instance != 0) {
@@ -65,7 +66,7 @@ int AD7091R_convst(AD7091R *p_instance,
   }
 }
 
-int AD7091R_cs(AD7091R *p_instance,
+int AD7091R_cs_pin(AD7091R *p_instance,
 	       uint8_t n_cs_pin) {
 
   if(p_instance != 0) {
@@ -79,7 +80,7 @@ int AD7091R_cs(AD7091R *p_instance,
   }
 }
 
-int AD7091R_clk(AD7091R *p_instance,
+int AD7091R_clk_pin(AD7091R *p_instance,
                 uint8_t n_clk_pin) {
 
   if(p_instance != 0) {
@@ -93,7 +94,7 @@ int AD7091R_clk(AD7091R *p_instance,
   }
 }
 
-int AD7091R_data(AD7091R *p_instance,
+int AD7091R_data_pin(AD7091R *p_instance,
                  uint8_t n_data_pin) {
 
   if(p_instance != 0) {
@@ -137,12 +138,12 @@ int AD7091R_begin(AD7091R *p_instance) {
     return TRUE;
   }
   else {
-    return BAD;
+    return FALSE;
   }
 
 }
 
-void AD7091R_reset(AD7091R *p_instance) {
+int AD7091R_reset(AD7091R *p_instance) {
 
   if(p_instance != 0) {
     //Start a conversion
